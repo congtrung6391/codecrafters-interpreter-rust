@@ -40,7 +40,9 @@ fn scanner(file_contents: String) {
     for char in file_contents.chars() {
         match char {
             '(' => println!("LEFT_PAREN ( null"),
-            ')'=> println!("RIGHT_PAREN ) null"),
+            ')' => println!("RIGHT_PAREN ) null"),
+            '{' => println!("LEFT_BRACE {{ null"),
+            '}' => println!("RIGHT_BRACE }} null"),
             _ => {}
         }
     }
