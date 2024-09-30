@@ -24,7 +24,7 @@ fn main() {
 
             // Uncomment this block to pass the first stage
             if !file_contents.is_empty() {
-                panic!("Scanner not implemented");
+                scanner(file_contents)
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
@@ -34,4 +34,16 @@ fn main() {
             return;
         }
     }
+}
+
+fn scanner(file_contents: String) {
+    for char in file_contents.chars() {
+        match char {
+            '(' => println!("LEFT_PAREN ( null"),
+            ')'=> println!("RIGHT_PAREN ) null"),
+            _ => {}
+        }
+    }
+
+    println!("EOF  null");
 }
