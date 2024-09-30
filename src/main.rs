@@ -114,7 +114,7 @@ fn scanner(file_contents: String) -> i32 {
     let line = 1;
     for char in file_contents.chars() {
         match char {
-            '(' => add_token(TokenType::LEFT_BRACE, String::from(char)),
+            '(' => add_token(TokenType::LEFT_PAREN, String::from(char)),
             ')' => add_token(TokenType::RIGHT_PAREN, String::from(char)),
             '{' => add_token(TokenType::LEFT_BRACE, String::from(char)),
             '}' => add_token(TokenType::RIGHT_BRACE, String::from(char)),
