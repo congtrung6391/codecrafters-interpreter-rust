@@ -43,6 +43,12 @@ fn scanner(file_contents: String) {
             ')' => println!("RIGHT_PAREN ) null"),
             '{' => println!("LEFT_BRACE {{ null"),
             '}' => println!("RIGHT_BRACE }} null"),
+            ',' => println!("COMMA , null"),
+            ';' => println!("SEMICOLON ; null"),
+            '.' => println!("DOT . null"),
+            '+' => println!("PLUS + null"),
+            '-' => println!("MINUS - null"),
+            '*' => println!("STAR * null"),
             _ => {}
         }
     }
