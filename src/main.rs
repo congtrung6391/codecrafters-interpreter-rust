@@ -117,26 +117,58 @@ fn scanner(file_contents: String) -> i32 {
 
     for char in file_contents.chars() {
         if prev_char_opr != None {
-           if char == '=' {
-               match prev_char_opr {
-                   Some('=') => add_token(TokenType::EQUAL_EQUAL, String::from(prev_char_opr.unwrap_or_default().to_string() + &char.to_string())),
-                   Some('<') => add_token(TokenType::LESS_EQUAL, String::from(prev_char_opr.unwrap_or_default().to_string() + &char.to_string())),
-                   Some('>') => add_token(TokenType::GREATER_EQUAL, String::from(prev_char_opr.unwrap_or_default().to_string() + &char.to_string())),
-                   Some('!') => add_token(TokenType::BANG_EQUAL, String::from(prev_char_opr.unwrap_or_default().to_string() + &char.to_string())),
-                   _ => {}
-               }
-               prev_char_opr = None;
-               continue
-           } else {
-               match prev_char_opr {
-                   Some('=') => add_token(TokenType::EQUAL, String::from(prev_char_opr.unwrap_or_default())),
-                   Some('<') => add_token(TokenType::LESS, String::from(prev_char_opr.unwrap_or_default())),
-                   Some('>') => add_token(TokenType::GREATER, String::from(prev_char_opr.unwrap_or_default())),
-                   Some('!') => add_token(TokenType::BANG_EQUAL, String::from(prev_char_opr.unwrap_or_default())),
-                   _ => {}
-               }
-           } 
-           prev_char_opr = None;
+            if char == '=' {
+                match prev_char_opr {
+                    Some('=') => add_token(
+                        TokenType::EQUAL_EQUAL,
+                        String::from(
+                            prev_char_opr.unwrap_or_default().to_string() + &char.to_string(),
+                        ),
+                    ),
+                    Some('<') => add_token(
+                        TokenType::LESS_EQUAL,
+                        String::from(
+                            prev_char_opr.unwrap_or_default().to_string() + &char.to_string(),
+                        ),
+                    ),
+                    Some('>') => add_token(
+                        TokenType::GREATER_EQUAL,
+                        String::from(
+                            prev_char_opr.unwrap_or_default().to_string() + &char.to_string(),
+                        ),
+                    ),
+                    Some('!') => add_token(
+                        TokenType::BANG_EQUAL,
+                        String::from(
+                            prev_char_opr.unwrap_or_default().to_string() + &char.to_string(),
+                        ),
+                    ),
+                    _ => {}
+                }
+                prev_char_opr = None;
+                continue;
+            } else {
+                match prev_char_opr {
+                    Some('=') => add_token(
+                        TokenType::EQUAL,
+                        String::from(prev_char_opr.unwrap_or_default()),
+                    ),
+                    Some('<') => add_token(
+                        TokenType::LESS,
+                        String::from(prev_char_opr.unwrap_or_default()),
+                    ),
+                    Some('>') => add_token(
+                        TokenType::GREATER,
+                        String::from(prev_char_opr.unwrap_or_default()),
+                    ),
+                    Some('!') => add_token(
+                        TokenType::BANG_EQUAL,
+                        String::from(prev_char_opr.unwrap_or_default()),
+                    ),
+                    _ => {}
+                }
+            }
+            prev_char_opr = None;
         }
 
         match char {
@@ -154,12 +186,32 @@ fn scanner(file_contents: String) -> i32 {
             '>' => prev_char_opr = Some(char),
             '<' => prev_char_opr = Some(char),
             '!' => prev_char_opr = Some(char),
-            '\n' => {},
+            '\n' => {}
             _ => {
                 lexer_error(line, String::from(char));
                 result = 65;
             }
         }
+    }
+
+    match prev_char_opr {
+        Some('=') => add_token(
+            TokenType::EQUAL,
+            String::from(prev_char_opr.unwrap_or_default()),
+        ),
+        Some('<') => add_token(
+            TokenType::LESS,
+            String::from(prev_char_opr.unwrap_or_default()),
+        ),
+        Some('>') => add_token(
+            TokenType::GREATER,
+            String::from(prev_char_opr.unwrap_or_default()),
+        ),
+        Some('!') => add_token(
+            TokenType::BANG_EQUAL,
+            String::from(prev_char_opr.unwrap_or_default()),
+        ),
+        _ => {}
     }
 
     println!("EOF  null");
