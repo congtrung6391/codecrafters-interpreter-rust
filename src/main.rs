@@ -222,7 +222,7 @@ fn scanner(file_contents: String) -> i32 {
                     let lexeme_format = format!("\"{}\"", lexeme.clone());
                     add_token(TokenType::STRING, lexeme_format, Some(literal));
                 } else {
-                    lexer_error(line, String::from("Unterminated string"));
+                    lexer_error(line, String::from("Unterminated string."));
                     result = 65;
                 }
             }
