@@ -111,7 +111,7 @@ fn main() {
 
 fn scanner(file_contents: String) -> i32 {
     let mut result = 0;
-    let line = 1;
+    let mut line = 1;
 
     let mut index: usize = 0;
     let file_contents_len = file_contents.len();
@@ -175,7 +175,12 @@ fn scanner(file_contents: String) -> i32 {
                     add_token(TokenType::SLASH, String::from(char));
                 }
             }
-            '\n' => {}
+            ' ' => {},
+            '\t' => {},
+            '\r' => {},
+            '\n' => {
+                line += 1;
+            },
             _ => {
                 lexer_error(line, String::from(char));
                 result = 65;
