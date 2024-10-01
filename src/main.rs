@@ -88,8 +88,8 @@ fn add_token(token_type: TokenType, lexeme: String, literal: Option<String>) {
     token.to_string();
 }
 
-fn lexer_error(line: i32, token: String) {
-    eprintln!("[line {}] Error: Unexpected character: {}", line, token)
+fn lexer_error(line: i32, message: String) {
+    eprintln!("[line {}] Error: {}", line, message)
 }
 
 fn main() {
@@ -221,6 +221,9 @@ fn scanner(file_contents: String) -> i32 {
                     let literal: String = lexeme.clone();
                     let lexeme_format = format!("\"{}\"", lexeme.clone());
                     add_token(TokenType::STRING, lexeme_format, Some(literal));
+                } else {
+                    lexer_error(line, String::from("Unterminated string"));
+                    result = 65;
                 }
             }
             ' ' => {}
@@ -230,7 +233,7 @@ fn scanner(file_contents: String) -> i32 {
                 line += 1;
             }
             _ => {
-                lexer_error(line, String::from(char));
+                lexer_error(line, String::from(format!("Unexpected token: {}", char)));
                 result = 65;
             }
         }
