@@ -3,7 +3,7 @@ use std::fs;
 use std::io::{self, Write};
 use std::process::exit;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum TokenType {
     // Single-character tokens.
     LEFT_PAREN,
@@ -70,12 +70,25 @@ struct Token {
 impl Token {
     pub fn to_string(&self) {
         let copied_literal = self.literal.clone();
-        println!(
-            "{:#?} {} {}",
-            self.token_type,
-            self.lexeme,
-            copied_literal.unwrap_or(String::from("null"))
-        );
+        if self.token_type == TokenType::NUMBER {
+            let literal_number = copied_literal
+                .unwrap_or_default()
+                .parse::<f64>()
+                .unwrap_or_default();
+            let formatted = if literal_number.fract() == 0.0 {
+                format!("{:.1}", literal_number) // Ensure at least one decimal place
+            } else {
+                literal_number.to_string() // Use the default string representation
+            };
+            println!("{:#?} {} {}", self.token_type, self.lexeme, formatted)
+        } else {
+            println!(
+                "{:#?} {} {}",
+                self.token_type,
+                self.lexeme,
+                copied_literal.unwrap_or(String::from("null"))
+            );
+        }
     }
 }
 
@@ -90,6 +103,13 @@ fn add_token(token_type: TokenType, lexeme: String, literal: Option<String>) {
 
 fn lexer_error(line: i32, message: String) {
     eprintln!("[line {}] Error: {}", line, message)
+}
+
+fn is_digit(char: char) -> bool {
+    if char.to_digit(10) != None {
+        return true;
+    }
+    return false;
 }
 
 fn main() {
@@ -233,8 +253,32 @@ fn scanner(file_contents: String) -> i32 {
                 line += 1;
             }
             _ => {
-                lexer_error(line, String::from(format!("Unexpected character: {}", char)));
-                result = 65;
+                if is_digit(char) {
+                    let mut literal = String::from("");
+                    let mut is_float = false;
+                    while index < file_contents_len
+                        && (is_digit(char_at(index)) || char_at(index) == '.')
+                    {
+                        if char_at(index) == '.' {
+                            if is_float == true {
+                                break;
+                            }
+                            is_float = true;
+                        }
+
+                        literal = literal + &char_at(index).to_string();
+                        index += 1;
+                    }
+                    index -= 1;
+
+                    add_token(TokenType::NUMBER, literal.clone(), Some(literal));
+                } else {
+                    lexer_error(
+                        line,
+                        String::from(format!("Unexpected character: {}", char)),
+                    );
+                    result = 65;
+                }
             }
         }
 
