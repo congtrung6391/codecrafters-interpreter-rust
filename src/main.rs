@@ -3,6 +3,25 @@ use std::fs;
 use std::io::{self, Write};
 use std::process::exit;
 
+const RESERVED_WORDS: [&str; 16] = [
+    "and",
+    "class",
+    "else",
+    "false",
+    "for",
+    "fun",
+    "if",
+    "nil",
+    "or",
+    "print",
+    "return",
+    "super",
+    "this",
+    "true",
+    "var",
+    "while"
+];
+
 #[derive(Debug, PartialEq)]
 enum TokenType {
     // Single-character tokens.
@@ -110,6 +129,59 @@ fn is_digit(char: char) -> bool {
         return true;
     }
     return false;
+}
+
+fn is_alpha(char: char) -> bool {
+    if char >= 'a' && char <= 'z' {
+        return true;
+    }
+
+    if char >= 'A' && char <= 'Z' {
+        return true;
+    }
+
+    if char == '_' {
+        return true;
+    }
+
+    return false;
+}
+
+fn is_alpha_numberic(char: char) -> bool {
+    return is_alpha(char) || is_digit(char);
+}
+
+fn is_reserved_word(str: String) -> bool {
+    for word in RESERVED_WORDS {
+        if word == str {
+            return true;
+        }
+    }
+
+    return false
+}
+
+fn get_reserverd_word_token_type(char: &str) -> TokenType {
+    match char {
+        "and" => TokenType::AND,
+    "class" => TokenType::CLASS,
+    "else" => TokenType::ELSE,
+    "false" => TokenType::FALSE,
+    "for" => TokenType::FOR,
+    "fun" => TokenType::FUN,
+    "if" => TokenType::IF,
+    "nil" => TokenType::NIL,
+    "or" => TokenType::OR,
+    "print" => TokenType::PRINT,
+    "return" => TokenType::RETURN,
+    "super" => TokenType::SUPER,
+    "this" => TokenType::THIS,
+    "true" => TokenType::TRUE,
+    "var" => TokenType::VAR,
+    "while" => TokenType::WHILE,
+    _ => TokenType::IDENTIFIER
+    }
+
 }
 
 fn main() {
@@ -272,6 +344,21 @@ fn scanner(file_contents: String) -> i32 {
                     index -= 1;
 
                     add_token(TokenType::NUMBER, literal.clone(), Some(literal));
+                } else if is_alpha(char) {
+                    let mut literal = String::from("");
+                    while index < file_contents_len
+                        && is_alpha_numberic(char_at(index))
+                    {
+                        literal = literal + &char_at(index).to_string();
+                        index += 1;
+                    }
+                    index -= 1;
+
+                    if is_reserved_word(literal.clone()) {
+                        add_token(get_reserverd_word_token_type(literal.clone().as_str()), literal.clone(), None);
+                    }     
+
+                    add_token(TokenType::IDENTIFIER, literal.clone(), Some(literal));
                 } else {
                     lexer_error(
                         line,
