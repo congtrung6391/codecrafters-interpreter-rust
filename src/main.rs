@@ -154,6 +154,7 @@ fn scanner(file_contents: String) -> i32 {
             '>' => prev_char_opr = Some(char),
             '<' => prev_char_opr = Some(char),
             '!' => prev_char_opr = Some(char),
+            '\n' => {},
             _ => {
                 lexer_error(line, String::from(char));
                 result = 65;
