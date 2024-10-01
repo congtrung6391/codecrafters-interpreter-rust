@@ -151,16 +151,6 @@ fn is_alpha_numberic(char: char) -> bool {
     return is_alpha(char) || is_digit(char);
 }
 
-fn is_reserved_word(str: String) -> bool {
-    for word in RESERVED_WORDS {
-        if word == str {
-            return true;
-        }
-    }
-
-    return false
-}
-
 fn get_reserverd_word_token_type(char: &str) -> TokenType {
     match char {
         "and" => TokenType::AND,
@@ -354,11 +344,7 @@ fn scanner(file_contents: String) -> i32 {
                     }
                     index -= 1;
 
-                    if is_reserved_word(literal.clone()) {
-                        add_token(get_reserverd_word_token_type(literal.clone().as_str()), literal.clone(), None);
-                    }     
-
-                    add_token(TokenType::IDENTIFIER, literal.clone(), Some(literal));
+                    add_token(get_reserverd_word_token_type(literal.clone().as_str()), literal.clone(), None);
                 } else {
                     lexer_error(
                         line,
