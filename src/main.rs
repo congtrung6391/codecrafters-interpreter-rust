@@ -168,8 +168,7 @@ fn scanner(file_contents: String) -> i32 {
             }
             '/' => {
                 if index + 1 < file_contents_len && char_at(index + 1) == '/' {
-                    index += 1;
-                    while char_at(index) != '\n' {
+                    while index + 1 < file_contents_len && char_at(index + 1) != '\n' {
                         index += 1;
                     };
                 } else {
