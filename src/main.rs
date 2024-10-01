@@ -54,19 +54,37 @@ enum TokenType {
     EOF,
 }
 
+// #[derive(Debug)]
+// #[derive(Clone)]
+// enum Literal {
+//     Text(String),
+//     Number(i32),
+// }
+
 struct Token {
     token_type: TokenType,
     lexeme: String,
+    literal: Option<String>,
 }
 
 impl Token {
     pub fn to_string(&self) {
-        println!("{:#?} {} null", self.token_type, self.lexeme);
+        let copied_literal = self.literal.clone();
+        println!(
+            "{:#?} {} {}",
+            self.token_type,
+            self.lexeme,
+            copied_literal.unwrap_or(String::from("null"))
+        );
     }
 }
 
-fn add_token(token_type: TokenType, lexeme: String) {
-    let token = Token { token_type, lexeme };
+fn add_token(token_type: TokenType, lexeme: String, literal: Option<String>) {
+    let token = Token {
+        token_type,
+        lexeme,
+        literal,
+    };
     token.to_string();
 }
 
@@ -116,7 +134,7 @@ fn scanner(file_contents: String) -> i32 {
     let mut index: usize = 0;
     let file_contents_len = file_contents.len();
 
-    let mut char_at = |idx: usize| {
+    let char_at = |idx: usize| {
         return file_contents.chars().nth(idx).unwrap_or_default();
     };
 
@@ -124,63 +142,93 @@ fn scanner(file_contents: String) -> i32 {
         let char = file_contents.chars().nth(index).unwrap_or_default();
 
         match char {
-            '(' => add_token(TokenType::LEFT_PAREN, String::from(char)),
-            ')' => add_token(TokenType::RIGHT_PAREN, String::from(char)),
-            '{' => add_token(TokenType::LEFT_BRACE, String::from(char)),
-            '}' => add_token(TokenType::RIGHT_BRACE, String::from(char)),
-            ',' => add_token(TokenType::COMMA, String::from(char)),
-            ';' => add_token(TokenType::SEMICOLON, String::from(char)),
-            '+' => add_token(TokenType::PLUS, String::from(char)),
-            '-' => add_token(TokenType::MINUS, String::from(char)),
-            '*' => add_token(TokenType::STAR, String::from(char)),
-            '.' => add_token(TokenType::DOT, String::from(char)),
+            '(' => add_token(TokenType::LEFT_PAREN, String::from(char), None),
+            ')' => add_token(TokenType::RIGHT_PAREN, String::from(char), None),
+            '{' => add_token(TokenType::LEFT_BRACE, String::from(char), None),
+            '}' => add_token(TokenType::RIGHT_BRACE, String::from(char), None),
+            ',' => add_token(TokenType::COMMA, String::from(char), None),
+            ';' => add_token(TokenType::SEMICOLON, String::from(char), None),
+            '+' => add_token(TokenType::PLUS, String::from(char), None),
+            '-' => add_token(TokenType::MINUS, String::from(char), None),
+            '*' => add_token(TokenType::STAR, String::from(char), None),
+            '.' => add_token(TokenType::DOT, String::from(char), None),
             '=' => {
                 if index + 1 < file_contents_len && char_at(index + 1) == '=' {
-                    add_token(TokenType::EQUAL_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
+                    add_token(
+                        TokenType::EQUAL_EQUAL,
+                        String::from(char.to_string() + &char_at(index + 1).to_string()),
+                        None,
+                    );
                     index += 1;
                 } else {
-                    add_token(TokenType::EQUAL, String::from(char));
+                    add_token(TokenType::EQUAL, String::from(char), None);
                 }
             }
             '<' => {
                 if index + 1 < file_contents_len && char_at(index + 1) == '=' {
-                    add_token(TokenType::LESS_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
+                    add_token(
+                        TokenType::LESS_EQUAL,
+                        String::from(char.to_string() + &char_at(index + 1).to_string()),
+                        None,
+                    );
                     index += 1;
                 } else {
-                    add_token(TokenType::LESS, String::from(char));
+                    add_token(TokenType::LESS, String::from(char), None);
                 }
             }
             '>' => {
                 if index + 1 < file_contents_len && char_at(index + 1) == '=' {
-                    add_token(TokenType::GREATER_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
+                    add_token(
+                        TokenType::GREATER_EQUAL,
+                        String::from(char.to_string() + &char_at(index + 1).to_string()),
+                        None,
+                    );
                     index += 1;
                 } else {
-                    add_token(TokenType::GREATER, String::from(char));
+                    add_token(TokenType::GREATER, String::from(char), None);
                 }
             }
             '!' => {
                 if index + 1 < file_contents_len && char_at(index + 1) == '=' {
-                    add_token(TokenType::BANG_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
+                    add_token(
+                        TokenType::BANG_EQUAL,
+                        String::from(char.to_string() + &char_at(index + 1).to_string()),
+                        None,
+                    );
                     index += 1;
                 } else {
-                    add_token(TokenType::BANG, String::from(char));
+                    add_token(TokenType::BANG, String::from(char), None);
                 }
             }
             '/' => {
                 if index + 1 < file_contents_len && char_at(index + 1) == '/' {
                     while index + 1 < file_contents_len && char_at(index + 1) != '\n' {
                         index += 1;
-                    };
+                    }
                 } else {
-                    add_token(TokenType::SLASH, String::from(char));
+                    add_token(TokenType::SLASH, String::from(char), None);
                 }
             }
-            ' ' => {},
-            '\t' => {},
-            '\r' => {},
+            '"' => {
+                let mut lexeme = String::from("");
+                index += 1;
+                while index < file_contents_len && char_at(index) != '"' {
+                    lexeme = lexeme + &char_at(index).to_string();
+                    index += 1;
+                }
+
+                if index < file_contents_len {
+                    let literal: String = lexeme.clone();
+                    let lexeme_format = format!("\"{}\"", lexeme.clone());
+                    add_token(TokenType::STRING, lexeme_format, Some(literal));
+                }
+            }
+            ' ' => {}
+            '\t' => {}
+            '\r' => {}
             '\n' => {
                 line += 1;
-            },
+            }
             _ => {
                 lexer_error(line, String::from(char));
                 result = 65;
