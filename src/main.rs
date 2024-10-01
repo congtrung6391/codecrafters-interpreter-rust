@@ -233,7 +233,7 @@ fn scanner(file_contents: String) -> i32 {
                 line += 1;
             }
             _ => {
-                lexer_error(line, String::from(format!("Unexpected token: {}", char)));
+                lexer_error(line, String::from(format!("Unexpected character: {}", char)));
                 result = 65;
             }
         }
