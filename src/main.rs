@@ -113,11 +113,15 @@ fn scanner(file_contents: String) -> i32 {
     let mut result = 0;
     let line = 1;
 
-    let mut index = 0;
+    let mut index: usize = 0;
     let file_contents_len = file_contents.len();
 
+    let mut char_at = |idx: usize| {
+        return file_contents.chars().nth(idx).unwrap_or_default();
+    };
+
     while index < file_contents_len {
-        let char = file_contents[index];
+        let char = file_contents.chars().nth(index).unwrap_or_default();
 
         match char {
             '(' => add_token(TokenType::LEFT_PAREN, String::from(char)),
@@ -131,39 +135,39 @@ fn scanner(file_contents: String) -> i32 {
             '*' => add_token(TokenType::STAR, String::from(char)),
             '.' => add_token(TokenType::DOT, String::from(char)),
             '=' => {
-                if index + 1 < file_contents_len && file_contents[index + 1] == '=' {
-                    add_token(TokenType::EQUAL_EQUAL, String::from(char.to_string() + file_contents_len[index + 1]));
+                if index + 1 < file_contents_len && char_at(index + 1) == '=' {
+                    add_token(TokenType::EQUAL_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
                     index += 1;
                 } else {
                     add_token(TokenType::EQUAL, String::from(char));
                 }
             }
             '<' => {
-                if index + 1 < file_contents_len && file_contents[index + 1] == '=' {
-                    add_token(TokenType::LESS_EQUAL, String::from(char.to_string() + file_contents_len[index + 1]));
+                if index + 1 < file_contents_len && char_at(index + 1) == '=' {
+                    add_token(TokenType::LESS_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
                     index += 1;
                 } else {
                     add_token(TokenType::LESS, String::from(char));
                 }
             }
             '>' => {
-                if index + 1 < file_contents_len && file_contents[index + 1] == '=' {
-                    add_token(TokenType::GREATER_EQUAL, String::from(char.to_string() + file_contents_len[index + 1]));
+                if index + 1 < file_contents_len && char_at(index + 1) == '=' {
+                    add_token(TokenType::GREATER_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
                     index += 1;
                 } else {
                     add_token(TokenType::GREATER, String::from(char));
                 }
             }
             '!' => {
-                if index + 1 < file_contents_len && file_contents[index + 1] == '=' {
-                    add_token(TokenType::BANG_EQUAL, String::from(char.to_string() + file_contents_len[index + 1]));
+                if index + 1 < file_contents_len && char_at(index + 1) == '=' {
+                    add_token(TokenType::BANG_EQUAL, String::from(char.to_string() + &char_at(index + 1).to_string()));
                     index += 1;
                 } else {
                     add_token(TokenType::BANG, String::from(char));
                 }
             }
             '/' => {
-                if index + 1 < file_contents_len && file_contents[index + 1] == '/' {
+                if index + 1 < file_contents_len && char_at(index + 1) == '/' {
                     index += 1;
                 } else {
                     add_token(TokenType::SLASH, String::from(char));
