@@ -162,7 +162,7 @@ fn scanner(file_contents: String) -> i32 {
                         String::from(prev_char_opr.unwrap_or_default()),
                     ),
                     Some('!') => add_token(
-                        TokenType::BANG_EQUAL,
+                        TokenType::BANG,
                         String::from(prev_char_opr.unwrap_or_default()),
                     ),
                     _ => {}
@@ -208,7 +208,7 @@ fn scanner(file_contents: String) -> i32 {
             String::from(prev_char_opr.unwrap_or_default()),
         ),
         Some('!') => add_token(
-            TokenType::BANG_EQUAL,
+            TokenType::BANG,
             String::from(prev_char_opr.unwrap_or_default()),
         ),
         _ => {}
