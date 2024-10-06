@@ -253,14 +253,14 @@ impl AST {
                     expr: Box::new(expr),
                 };
             } else {
-                print!(
+                eprintln!(
                     "[line 1] Error at '{}': Expect expression.",
                     self.peek().lexeme
                 );
                 exit(65);
             }
         }
-        print!(
+        eprintln!(
             "[line 1] Error at '{}': Expect expression.",
             self.peek().lexeme
         );
