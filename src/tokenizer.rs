@@ -76,8 +76,8 @@ impl Tokenizer {
         eprintln!("[line {}] Error: {}", line, message)
     }
 
-    pub fn scan(&mut self, file_contents: String) -> ExitCode {
-        let mut result = ExitCode::SUCCESS;
+    pub fn scan(&mut self, file_contents: String) -> i32 {
+        let mut result = 0;
         let mut line = 1;
 
         let mut index: usize = 0;
@@ -176,7 +176,7 @@ impl Tokenizer {
                         Self::add_token(self, TokenType::STRING, lexeme_format, Some(literal));
                     } else {
                         Self::lexer_error(line, String::from("Unterminated string."));
-                        result = ExitCode::FAILURE;
+                        result = 65;
                     }
                 }
                 ' ' => {}
@@ -224,7 +224,7 @@ impl Tokenizer {
                             line,
                             String::from(format!("Unexpected character: {}", char)),
                         );
-                        result = ExitCode::FAILURE;
+                        result = 65;
                     }
                 }
             }

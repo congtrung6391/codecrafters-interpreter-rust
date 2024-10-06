@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 use std::process::exit;
+use std::process::ExitCode;
 
 use crate::tokenizer::Tokenizer;
 use crate::expr::AST;
@@ -35,7 +36,6 @@ fn main() {
                 let result = tokenizer.scan(file_contents.clone());
                 tokenizer.print_tokens();
 
-                result;
                 exit(result);
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
