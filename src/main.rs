@@ -47,7 +47,7 @@ fn main() {
                 let result = tokenizer.scan(file_contents.clone());
                 let tokens = tokenizer.get_tokens();
 
-                if (result) {
+                if (result != 0) {
                     exit(result);
                 }
 
