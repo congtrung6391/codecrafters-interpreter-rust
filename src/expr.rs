@@ -1,4 +1,4 @@
-use std::{any::Any, fmt::Display};
+use std::{any::Any, fmt::Display, process::exit};
 
 use crate::token::{Token, TokenType};
 
@@ -60,7 +60,7 @@ impl Display for Expression {
                 left_expr,
                 right_expr,
             } => f.write_fmt(format_args!("({} {left_expr} {right_expr})", operator.lexeme)),
-            Expression::Grouping { expr } => todo!(),
+            Expression::Grouping { expr } => f.write_fmt(format_args!("(group {expr})")),
             Expression::Literal(lit) => f.write_fmt(format_args!("{}", lit)),
         }
     }
@@ -240,11 +240,15 @@ impl AST {
             Self::advance(self);
             return Expression::Literal(Literal::Number(literal_number));
         }
-        // if Self::match_type(self, &[TokenType::LEFT_PAREN]) {
-            let expr = Self::expression(self);
+        if Self::match_type(self, &[TokenType::LEFT_PAREN]) {
             Self::advance(self);
-            return Expression::Grouping { expr: Box::new(expr) };
-        // }
+            let expr = Self::expression(self);
+            if Self::match_type(self, &[TokenType::RIGHT_PAREN]) {
+                Self::advance(self);
+                return Expression::Grouping { expr: Box::new(expr) };
+            }
+        }
+        exit(65);
     }
 
     fn expression(&mut self) -> Expression {
