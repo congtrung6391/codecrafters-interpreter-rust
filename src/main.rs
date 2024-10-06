@@ -36,6 +36,7 @@ fn main() {
                 tokenizer.print_tokens();
 
                 result;
+                exit(result);
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
