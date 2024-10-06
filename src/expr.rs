@@ -47,8 +47,6 @@ impl Display for Literal {
     }
 }
 
-
-
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -59,7 +57,10 @@ impl Display for Expression {
                 operator,
                 left_expr,
                 right_expr,
-            } => f.write_fmt(format_args!("({} {left_expr} {right_expr})", operator.lexeme)),
+            } => f.write_fmt(format_args!(
+                "({} {left_expr} {right_expr})",
+                operator.lexeme
+            )),
             Expression::Grouping { expr } => f.write_fmt(format_args!("(group {expr})")),
             Expression::Literal(lit) => f.write_fmt(format_args!("{}", lit)),
         }
@@ -169,7 +170,6 @@ impl AST {
             Self::advance(self);
             let right_expr: Expression = Self::factor(self);
 
-
             left_expr = Expression::Binary {
                 operator,
                 left_expr: Box::new(left_expr),
@@ -206,7 +206,10 @@ impl AST {
             Self::advance(self);
             let expr: Expression = Self::unary(self);
 
-            let expr = Expression::Unary { operator, expr: Box::new(expr) };
+            let expr = Expression::Unary {
+                operator,
+                expr: Box::new(expr),
+            };
 
             return expr;
         }
@@ -233,7 +236,8 @@ impl AST {
             return Expression::Literal(Literal::String(lit_string));
         }
         if Self::match_type(self, &[TokenType::NUMBER]) {
-            let literal_number = Self::peek(self).literal
+            let literal_number = Self::peek(self)
+                .literal
                 .unwrap_or_default()
                 .parse::<f64>()
                 .unwrap_or_default();
@@ -245,10 +249,21 @@ impl AST {
             let expr = Self::expression(self);
             if Self::match_type(self, &[TokenType::RIGHT_PAREN]) {
                 Self::advance(self);
-                return Expression::Grouping { expr: Box::new(expr) };
+                return Expression::Grouping {
+                    expr: Box::new(expr),
+                };
+            } else {
+                print!(
+                    "[line 1] Error at '{}': Expect expression.",
+                    self.peek().lexeme
+                );
+                exit(65);
             }
         }
-        print!("[line 1] Error at '{}': Expect expression.", self.peek().lexeme);
+        print!(
+            "[line 1] Error at '{}': Expect expression.",
+            self.peek().lexeme
+        );
         exit(65);
     }
 
