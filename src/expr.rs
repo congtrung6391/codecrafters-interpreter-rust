@@ -248,6 +248,7 @@ impl AST {
                 return Expression::Grouping { expr: Box::new(expr) };
             }
         }
+        print!("[line 1] Error at '{}': Expect expression.", self.peek().lexeme);
         exit(65);
     }
 
