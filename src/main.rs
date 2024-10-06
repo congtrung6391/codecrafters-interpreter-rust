@@ -47,6 +47,10 @@ fn main() {
                 let result = tokenizer.scan(file_contents.clone());
                 let tokens = tokenizer.get_tokens();
 
+                if (result) {
+                    exit(result);
+                }
+
                 let mut ast = AST::new(tokens); 
                 ast.parse_tree();
             } else {
