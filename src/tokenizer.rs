@@ -69,7 +69,6 @@ impl Tokenizer {
             lexeme,
             literal,
         );
-        token.to_string();
         &self.tokens.push(token);
     }
 
@@ -233,12 +232,18 @@ impl Tokenizer {
             index += 1;
         }
 
-        println!("EOF  null");
         return result;
     }
 
     pub fn get_tokens(&mut self) -> Vec<Token> {
         return self.tokens.clone();
+    }
+
+    pub fn print_tokens(&self) {
+        for token in self.tokens.clone() {
+            token.to_string();
+        }
+        println!("EOF  null");
     }
 }
 

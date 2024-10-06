@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{any::Any, fmt::Display};
 
 use crate::token::{Token, TokenType};
 
@@ -61,7 +61,7 @@ impl Display for Expression {
                 right_expr,
             } => f.write_fmt(format_args!("({} {left_expr} {right_expr})", operator.lexeme)),
             Expression::Grouping { expr } => todo!(),
-            Expression::Literal(_) => todo!(),
+            Expression::Literal(lit) => f.write_fmt(format_args!("{}", lit)),
         }
     }
 }
@@ -169,6 +169,7 @@ impl AST {
             Self::advance(self);
             let right_expr: Expression = Self::factor(self);
 
+
             left_expr = Expression::Binary {
                 operator,
                 left_expr: Box::new(left_expr),
@@ -200,7 +201,7 @@ impl AST {
 
     fn unary(&mut self) -> Expression {
         let match_targets = [TokenType::MINUS, TokenType::BANG];
-        while Self::match_type(self, &match_targets) {
+        if Self::match_type(self, &match_targets) {
             let operator = Self::peek(self);
             Self::advance(self);
             let expr: Expression = Self::unary(self);
@@ -215,27 +216,33 @@ impl AST {
 
     fn primary(&mut self) -> Expression {
         if Self::match_type(self, &[TokenType::FALSE]) {
+            Self::advance(self);
             return Expression::Literal(Literal::Bool(false));
         }
         if Self::match_type(self, &[TokenType::TRUE]) {
+            Self::advance(self);
             return Expression::Literal(Literal::Bool(true));
         }
         if Self::match_type(self, &[TokenType::NIL]) {
+            Self::advance(self);
             return Expression::Literal(Literal::Nil);
         }
         if Self::match_type(self, &[TokenType::STRING]) {
-            return Expression::Literal(Literal::String(Self::peek(self).literal.unwrap_or_default()));
+            let lit_string = Self::peek(self).literal.unwrap_or_default();
+            Self::advance(self);
+            return Expression::Literal(Literal::String(lit_string));
         }
         if Self::match_type(self, &[TokenType::NUMBER]) {
             let literal_number = Self::peek(self).literal
                 .unwrap_or_default()
                 .parse::<f64>()
                 .unwrap_or_default();
-
+            Self::advance(self);
             return Expression::Literal(Literal::Number(literal_number));
         }
         // if Self::match_type(self, &[TokenType::LEFT_PAREN]) {
             let expr = Self::expression(self);
+            Self::advance(self);
             return Expression::Grouping { expr: Box::new(expr) };
         // }
     }
@@ -248,6 +255,10 @@ impl AST {
         while !Self::is_at_end(&self) {
             let expr = Self::equality(self);
             self.exprs.push(expr);
+        }
+
+        for expr in &self.exprs {
+            print!("{}", expr);
         }
     }
 }

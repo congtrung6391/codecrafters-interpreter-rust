@@ -33,6 +33,7 @@ fn main() {
                 let mut tokenizer = Tokenizer::new();
 
                 let result = tokenizer.scan(file_contents.clone());
+                tokenizer.print_tokens();
 
                 result;
             } else {
