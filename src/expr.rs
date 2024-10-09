@@ -144,16 +144,17 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
 
     match operator.token_type {
         TokenType::EQUAL_EQUAL => {
-            if let Ok(l) = left {
-                if let Ok(r) = right {
+            if let Ok(l) = left_str {
+                if let Ok(r) = right_str {
                     return Literal::Bool(l == r);
                 }
             }
             panic!("Something went wrong!");
         }
         TokenType::BANG_EQUAL => {
-            if let Ok(l) = left {
-                if let Ok(r) = right {
+            if let Ok(l) = left_str {
+                if let Ok(r) = right_str {
+                    println!("{} {}", l, r);
                     return Literal::Bool(l != r);
                 }
             }
