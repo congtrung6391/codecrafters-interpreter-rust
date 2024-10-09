@@ -1,4 +1,8 @@
-use std::{any::Any, fmt::Display, process::exit};
+use std::{
+    any::{Any, TypeId},
+    fmt::Display,
+    process::exit,
+};
 
 use crate::token::{Token, TokenType};
 
@@ -12,6 +16,7 @@ use crate::token::{Token, TokenType};
  * operator       → "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ;
  **/
 
+#[derive(Clone)]
 pub enum Literal {
     Bool(bool),
     Nil,
@@ -19,6 +24,7 @@ pub enum Literal {
     String(String),
 }
 
+#[derive(Clone)]
 pub enum Expression {
     Literal(Literal),
     Unary {
@@ -41,9 +47,44 @@ impl Display for Literal {
             Literal::String(b) => f.write_fmt(format_args!("{b}")),
             Literal::Nil => f.write_str("nil"),
             Literal::Number(n) => f.write_fmt(format_args!("{n:?}")),
-            Literal::String(s) => f.write_fmt(format_args!("{s:?}")),
             Literal::Bool(s) => f.write_fmt(format_args!("{s}")),
         }
+    }
+}
+
+impl Literal {
+    fn to_string(&self) -> String {
+        match self {
+            Literal::String(s) => s.clone(),
+            Literal::Nil => panic!("Something went wrong"),
+            Literal::Number(n) => n.to_string(),
+            Literal::Bool(b) => panic!("Something went wrong"),
+        }
+    }
+
+    fn to_number(&self) -> f64 {
+        match self {
+            Literal::String(s) => {
+                let num = s.parse();
+                match num {
+                    Ok(n) => return n,
+                    Err(e) => panic!("Something went wrong")
+                }
+            },
+            Literal::Nil => panic!("Something went wrong"),
+            Literal::Number(n) => *n,
+            Literal::Bool(b) => if *b == false { 0.0 } else { 1.1 },
+        }
+    }
+
+    fn to_bool(&self) -> bool{
+         match self {
+            Literal::String(s) => true,
+            Literal::Nil => false,
+            Literal::Number(n) => true,
+            Literal::Bool(b) => *b,
+        }
+
     }
 }
 
@@ -63,6 +104,87 @@ impl Display for Expression {
             )),
             Expression::Grouping { expr } => f.write_fmt(format_args!("(group {expr})")),
             Expression::Literal(lit) => f.write_fmt(format_args!("{}", lit)),
+        }
+    }
+}
+
+pub fn eval_unary(operator: Token, expr: &Expression) -> Literal {
+    let expr_lit = expr.accept();
+
+    match operator.token_type {
+        TokenType::MINUS => {
+            let num = expr_lit.to_number();
+            return Literal::Number(-num);
+            
+        },
+        TokenType::BANG => {
+            let b = expr_lit.to_bool();
+            return Literal::Bool(!b);
+            
+        },
+        _ => panic!("Something went wrong!"),
+    }
+}
+
+// "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ;
+pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expression) -> Literal {
+    return Literal::Nil;
+    let left = left_expr.accept();
+    let right = right_expr.accept();
+    match operator {
+        // TokenType::EQUAL_EQUAL => {
+        //     return (left == right);
+        // }
+        // TokenType::BANG_EQUAL => {
+        //     return (left != right);
+        // }
+        // TokenType::LESS => {
+        //     return (left < right);
+        // }
+        // TokenType::GREATER => {
+        //     return (left > right);
+        // }
+        // TokenType::LESS_EQUAL => {
+        //     return (left <= right);
+        // }
+        // TokenType::GREATER_EQUAL => {
+        //     return (left >= right);
+        // }
+        // TokenType::PLUS => {
+        //     return left + right;
+        // }
+        // TokenType::MINUS => {
+        //     return left - right;
+        // }
+        // TokenType::STAR => {
+        //     return left * right;
+        // }
+        // TokenType::SLASH => {
+        //     return left / right;
+        // }
+        _ => panic!("Something went wrong!"),
+    }
+}
+
+pub fn eval_group(expr: &Expression) -> Literal {
+    return expr.accept();
+}
+
+pub fn eval_literal(lit: Literal) -> Literal {
+    return lit;
+}
+
+impl Expression {
+    pub fn accept(&self) -> Literal {
+        match self {
+            Expression::Binary {
+                operator,
+                left_expr,
+                right_expr,
+            } => eval_binary(operator, &**left_expr, &**right_expr),
+            Expression::Grouping { expr } => eval_group(expr),
+            Expression::Unary { operator, expr } => eval_unary(operator.clone(), &**expr),
+            Expression::Literal(lit) => eval_literal(lit.clone()),
         }
     }
 }
@@ -95,10 +217,6 @@ impl AST {
 
     fn peek(&self) -> Token {
         return self.tokens.get(self.curr_idx).unwrap().clone();
-    }
-
-    fn previous(&self) -> Token {
-        return self.tokens.get(self.curr_idx - 1).unwrap().clone();
     }
 
     fn check(&self, token_type: TokenType) -> bool {
@@ -280,5 +398,9 @@ impl AST {
         for expr in &self.exprs {
             print!("{}", expr);
         }
+    }
+
+    pub fn export_exprs(&self) -> Vec<Expression> {
+        return self.exprs.clone();
     }
 }

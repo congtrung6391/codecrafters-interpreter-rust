@@ -2,7 +2,6 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 use std::process::exit;
-use std::process::ExitCode;
 
 use crate::tokenizer::Tokenizer;
 use crate::expr::AST;
@@ -57,6 +56,30 @@ fn main() {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
 
+        }
+        "evaluate" => {
+            if !file_contents.is_empty() {
+                let mut tokenizer = Tokenizer::new();
+                let result = tokenizer.scan(file_contents.clone());
+                let tokens = tokenizer.get_tokens();
+
+                if (result != 0) {
+                    exit(result);
+                }
+
+                let mut ast = AST::new(tokens); 
+                ast.parse_tree();
+
+                let exprs = ast.export_exprs();
+
+                for expr in exprs {
+                    let val = expr.accept();
+                    println!("{}", val);
+                }
+                
+            } else {
+                println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
+            }
         }
         _ => {
             writeln!(io::stderr(), "Unknown command: {}", command).unwrap();
