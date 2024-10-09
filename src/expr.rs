@@ -213,7 +213,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::String(format!("{}{}", l_str, r_str));
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be two numbers or two strings.");
         }
         TokenType::MINUS => {
             if let Ok(l) = left {
