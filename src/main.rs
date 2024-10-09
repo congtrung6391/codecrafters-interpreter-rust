@@ -51,7 +51,7 @@ fn main() {
                 }
 
                 let mut ast = AST::new(tokens); 
-                ast.parse_tree();
+                ast.parse_tree(true);
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
@@ -68,7 +68,7 @@ fn main() {
                 }
 
                 let mut ast = AST::new(tokens); 
-                ast.parse_tree();
+                ast.parse_tree(false);
 
                 let exprs = ast.export_exprs();
 

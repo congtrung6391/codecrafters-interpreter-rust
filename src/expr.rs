@@ -68,23 +68,28 @@ impl Literal {
                 let num = s.parse();
                 match num {
                     Ok(n) => return n,
-                    Err(e) => panic!("Something went wrong")
+                    Err(e) => panic!("Something went wrong"),
                 }
-            },
+            }
             Literal::Nil => panic!("Something went wrong"),
             Literal::Number(n) => *n,
-            Literal::Bool(b) => if *b == false { 0.0 } else { 1.1 },
+            Literal::Bool(b) => {
+                if *b == false {
+                    0.0
+                } else {
+                    1.1
+                }
+            }
         }
     }
 
-    fn to_bool(&self) -> bool{
-         match self {
+    fn to_bool(&self) -> bool {
+        match self {
             Literal::String(s) => true,
             Literal::Nil => false,
             Literal::Number(n) => true,
             Literal::Bool(b) => *b,
         }
-
     }
 }
 
@@ -115,13 +120,11 @@ pub fn eval_unary(operator: Token, expr: &Expression) -> Literal {
         TokenType::MINUS => {
             let num = expr_lit.to_number();
             return Literal::Number(-num);
-            
-        },
+        }
         TokenType::BANG => {
             let b = expr_lit.to_bool();
             return Literal::Bool(!b);
-            
-        },
+        }
         _ => panic!("Something went wrong!"),
     }
 }
@@ -389,14 +392,16 @@ impl AST {
         return Self::equality(self);
     }
 
-    pub fn parse_tree(&mut self) {
+    pub fn parse_tree(&mut self, debug: bool) {
         while !Self::is_at_end(&self) {
             let expr = Self::equality(self);
             self.exprs.push(expr);
         }
 
-        for expr in &self.exprs {
-            print!("{}", expr);
+        if debug {
+            for expr in &self.exprs {
+                print!("{}", expr);
+            }
         }
     }
 
