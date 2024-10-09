@@ -202,6 +202,10 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
             panic!("Something went wrong!");
         }
         TokenType::PLUS => {
+            if (left_type != right_type) {
+                return evaluation_error("Operands must be two numbers or two strings.");
+            }
+
             if let Ok(l) = left {
                 if let Ok(r) = right {
                     return Literal::Number(l + r);
@@ -213,6 +217,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::String(format!("{}{}", l_str, r_str));
                 }
             }
+
             return evaluation_error("Operands must be two numbers or two strings.");
         }
         TokenType::MINUS => {
