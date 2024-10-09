@@ -136,7 +136,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
     let left = left_raw.to_number();
     let right = right_raw.to_number();
 
-    match operator {
+    match operator.token_type {
         TokenType::EQUAL_EQUAL => {
             return Literal::Bool(left == right);
         }
