@@ -159,7 +159,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Bool(l == r && left_type == right_type);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::BANG_EQUAL => {
             if let Ok(l) = left_str {
@@ -221,7 +221,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Number(l - r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::STAR => {
             if let Ok(l) = left {
@@ -229,7 +229,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Number(l * r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::SLASH => {
             if let Ok(l) = left {
@@ -240,7 +240,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Number(l / r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         _ => panic!("Something went wrong!"),
     }
