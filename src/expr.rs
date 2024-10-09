@@ -53,42 +53,42 @@ impl Display for Literal {
 }
 
 impl Literal {
-    fn to_string(&self) -> String {
+    fn to_string(&self) -> Result<String, String> {
         match self {
-            Literal::String(s) => s.clone(),
-            Literal::Nil => panic!("Something went wrong"),
-            Literal::Number(n) => n.to_string(),
-            Literal::Bool(b) => panic!("Something went wrong"),
+            Literal::String(s) => Ok(s.clone()),
+            Literal::Nil => Err("Error type".to_string()),
+            Literal::Number(n) => Ok(n.to_string()),
+            Literal::Bool(b) => Err("Error type".to_string()),
         }
     }
 
-    fn to_number(&self) -> f64 {
+    fn to_number(&self) -> Result<f64, String> {
         match self {
             Literal::String(s) => {
                 let num = s.parse();
                 match num {
-                    Ok(n) => return n,
-                    Err(e) => panic!("Something went wrong"),
+                    Ok(n) => Ok(n),
+                    Err(e) => Err("Error type".to_string()),
                 }
             }
-            Literal::Nil => panic!("Something went wrong"),
-            Literal::Number(n) => *n,
+            Literal::Nil => Err("Error type".to_string()),
+            Literal::Number(n) => Ok(*n),
             Literal::Bool(b) => {
                 if *b == false {
-                    0.0
+                    Ok(0.0)
                 } else {
-                    1.1
+                    Ok(1.0)
                 }
             }
         }
     }
 
-    fn to_bool(&self) -> bool {
+    fn to_bool(&self) -> Result<bool, String> {
         match self {
-            Literal::String(s) => true,
-            Literal::Nil => false,
-            Literal::Number(n) => true,
-            Literal::Bool(b) => *b,
+            Literal::String(s) => Ok(true),
+            Literal::Nil => Ok(false),
+            Literal::Number(n) => Ok(true),
+            Literal::Bool(b) => Ok(*b),
         }
     }
 }
@@ -114,17 +114,21 @@ impl Display for Expression {
 }
 
 pub fn eval_unary(operator: Token, expr: &Expression) -> Literal {
-    let expr_lit = expr.accept();
+    let expr_lit_raw = expr.accept();
 
     match operator.token_type {
-        TokenType::MINUS => {
-            let num = expr_lit.to_number();
-            return Literal::Number(-num);
-        }
-        TokenType::BANG => {
-            let b = expr_lit.to_bool();
-            return Literal::Bool(!b);
-        }
+        TokenType::MINUS => match expr_lit_raw.to_number() {
+            Ok(num) => {
+                return Literal::Number(-num);
+            }
+            Err(_) => panic!("Something went wrong!"),
+        },
+        TokenType::BANG => match expr_lit_raw.to_bool() {
+            Ok(b) => {
+                return Literal::Bool(!b);
+            }
+            Err(_) => panic!("Something went wrong!"),
+        },
         _ => panic!("Something went wrong!"),
     }
 }
@@ -135,37 +139,98 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
     let right_raw = right_expr.accept();
     let left = left_raw.to_number();
     let right = right_raw.to_number();
+    let left_str = left_raw.to_string();
+    let right_str = right_raw.to_string();
 
     match operator.token_type {
         TokenType::EQUAL_EQUAL => {
-            return Literal::Bool(left == right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Bool(l == r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::BANG_EQUAL => {
-            return Literal::Bool(left != right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Bool(l != r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::LESS => {
-            return Literal::Bool(left < right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Bool(l < r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::GREATER => {
-            return Literal::Bool(left > right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Bool(l > r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::LESS_EQUAL => {
-            return Literal::Bool(left <= right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Bool(l <= r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::GREATER_EQUAL => {
-            return Literal::Bool(left >= right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Bool(l >= r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::PLUS => {
-            return Literal::Number(left + right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Number(l + r);
+                }
+            }
+
+            if let Ok(l_str) = left_str {
+                if let Ok(r_str) = right_str {
+                    return Literal::String(format!("{}{}", l_str, r_str));
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::MINUS => {
-            return Literal::Number(left - right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Number(l - r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::STAR => {
-            return Literal::Number(left * right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    return Literal::Number(l * r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         TokenType::SLASH => {
-            return Literal::Number(left / right);
+            if let Ok(l) = left {
+                if let Ok(r) = right {
+                    if r == 0.0 {
+                        panic!("Something went wrong!");
+                    }
+                    return Literal::Number(l / r);
+                }
+            }
+            panic!("Something went wrong!");
         }
         _ => panic!("Something went wrong!"),
     }
