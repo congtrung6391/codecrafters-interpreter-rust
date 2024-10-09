@@ -3,12 +3,14 @@ use std::fs;
 use std::io::{self, Write};
 use std::process::exit;
 
-use crate::tokenizer::Tokenizer;
-use crate::expr::AST;
+use expr::Literal;
 
-pub mod tokenizer;
-pub mod token;
+use crate::expr::AST;
+use crate::tokenizer::Tokenizer;
+
 pub mod expr;
+pub mod token;
+pub mod tokenizer;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -50,12 +52,11 @@ fn main() {
                     exit(result);
                 }
 
-                let mut ast = AST::new(tokens); 
+                let mut ast = AST::new(tokens);
                 ast.parse_tree(true);
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
-
         }
         "evaluate" => {
             if !file_contents.is_empty() {
@@ -67,16 +68,28 @@ fn main() {
                     exit(result);
                 }
 
-                let mut ast = AST::new(tokens); 
+                let mut ast = AST::new(tokens);
                 ast.parse_tree(false);
 
                 let exprs = ast.export_exprs();
 
                 for expr in exprs {
                     let val = expr.accept();
-                    println!("{}", val);
+                    match val {
+                        Literal::String(s) => println!("{}", s),
+                        Literal::Nil => println!("nil"),
+                        Literal::Bool(s) => println!("{}", s),
+                        Literal::Number(n) => {
+                            let formatted = if n.fract() == 0.0 {
+                                // If there is no fractional part, show one decimal place
+                                println!("{:.0}", n)
+                            } else {
+                                // Otherwise, show the full precision
+                                println!("{}", n)
+                            };
+                        }
+                    }
                 }
-                
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
