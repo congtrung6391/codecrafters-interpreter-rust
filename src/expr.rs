@@ -86,14 +86,8 @@ impl Literal {
                 }
             }
             Literal::Nil => Err("Error type".to_string()),
+            Literal::Bool(b) => Err("Error type".to_string()),
             Literal::Number(n) => Ok(*n),
-            Literal::Bool(b) => {
-                if *b == false {
-                    Ok(0.0)
-                } else {
-                    Ok(1.0)
-                }
-            }
         }
     }
 
