@@ -131,40 +131,42 @@ pub fn eval_unary(operator: Token, expr: &Expression) -> Literal {
 
 // "==" | "!=" | "<" | "<=" | ">" | ">=" | "+"  | "-"  | "*" | "/" ;
 pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expression) -> Literal {
-    return Literal::Nil;
-    let left = left_expr.accept();
-    let right = right_expr.accept();
+    let left_raw = left_expr.accept();
+    let right_raw = right_expr.accept();
+    let left = left_raw.to_number();
+    let right = right_raw.to_number();
+
     match operator {
-        // TokenType::EQUAL_EQUAL => {
-        //     return (left == right);
-        // }
-        // TokenType::BANG_EQUAL => {
-        //     return (left != right);
-        // }
-        // TokenType::LESS => {
-        //     return (left < right);
-        // }
-        // TokenType::GREATER => {
-        //     return (left > right);
-        // }
-        // TokenType::LESS_EQUAL => {
-        //     return (left <= right);
-        // }
-        // TokenType::GREATER_EQUAL => {
-        //     return (left >= right);
-        // }
-        // TokenType::PLUS => {
-        //     return left + right;
-        // }
-        // TokenType::MINUS => {
-        //     return left - right;
-        // }
-        // TokenType::STAR => {
-        //     return left * right;
-        // }
-        // TokenType::SLASH => {
-        //     return left / right;
-        // }
+        TokenType::EQUAL_EQUAL => {
+            return Literal::Bool(left == right);
+        }
+        TokenType::BANG_EQUAL => {
+            return Literal::Bool(left != right);
+        }
+        TokenType::LESS => {
+            return Literal::Bool(left < right);
+        }
+        TokenType::GREATER => {
+            return Literal::Bool(left > right);
+        }
+        TokenType::LESS_EQUAL => {
+            return Literal::Bool(left <= right);
+        }
+        TokenType::GREATER_EQUAL => {
+            return Literal::Bool(left >= right);
+        }
+        TokenType::PLUS => {
+            return Literal::Number(left + right);
+        }
+        TokenType::MINUS => {
+            return Literal::Number(left - right);
+        }
+        TokenType::STAR => {
+            return Literal::Number(left * right);
+        }
+        TokenType::SLASH => {
+            return Literal::Number(left / right);
+        }
         _ => panic!("Something went wrong!"),
     }
 }
