@@ -6,6 +6,11 @@ use std::{
 
 use crate::token::{Token, TokenType};
 
+fn evaluation_error(msg: &str) -> Literal {
+    eprintln!("{}", msg);
+    exit(70)
+}
+
 /**
  * Grammer
  * expression     → literal | unary | binary | grouping ;
@@ -130,7 +135,7 @@ pub fn eval_unary(operator: Token, expr: &Expression) -> Literal {
             Ok(num) => {
                 return Literal::Number(-num);
             }
-            Err(_) => panic!("Operand must be a number."),
+            Err(_) => evaluation_error("Operand must be a number."),
         },
         TokenType::BANG => match expr_lit_raw.to_bool() {
             Ok(b) => {
