@@ -167,7 +167,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Bool(l != r || left_type != right_type);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::LESS => {
             if let Ok(l) = left {
@@ -175,7 +175,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Bool(l < r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::GREATER => {
             if let Ok(l) = left {
@@ -183,7 +183,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Bool(l > r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::LESS_EQUAL => {
             if let Ok(l) = left {
@@ -191,7 +191,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Bool(l <= r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::GREATER_EQUAL => {
             if let Ok(l) = left {
@@ -199,7 +199,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
                     return Literal::Bool(l >= r);
                 }
             }
-            panic!("Something went wrong!");
+            return evaluation_error("Operands must be numbers.");
         }
         TokenType::PLUS => {
             if (left_type != right_type) {
