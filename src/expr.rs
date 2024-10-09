@@ -134,7 +134,7 @@ pub fn eval_unary(operator: Token, expr: &Expression) -> Literal {
             Ok(num) => {
                 return Literal::Number(-num);
             }
-            Err(_) => evaluation_error("Operand must be a number.".to_string()),
+            Err(_) => panic!("Operand must be a number."),
         },
         TokenType::BANG => match expr_lit_raw.to_bool() {
             Ok(b) => {
