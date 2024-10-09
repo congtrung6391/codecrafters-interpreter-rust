@@ -154,7 +154,6 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
         TokenType::BANG_EQUAL => {
             if let Ok(l) = left_str {
                 if let Ok(r) = right_str {
-                    println!("{} {}", l, r);
                     return Literal::Bool(l != r);
                 }
             }
