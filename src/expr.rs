@@ -53,6 +53,15 @@ impl Display for Literal {
 }
 
 impl Literal {
+    fn get_type(&self) -> String {
+        match self {
+            Literal::String(s) => "string".to_string(),
+            Literal::Nil => "nil".to_string(),
+            Literal::Number(n) => "number".to_string(),
+            Literal::Bool(b) => "bool".to_string(),
+        }
+    }
+
     fn to_string(&self) -> Result<String, String> {
         match self {
             Literal::String(s) => Ok(s.clone()),
@@ -141,12 +150,14 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
     let right = right_raw.to_number();
     let left_str = left_raw.to_string();
     let right_str = right_raw.to_string();
+    let left_type = left_raw.get_type();
+    let right_type = right_raw.get_type();
 
     match operator.token_type {
         TokenType::EQUAL_EQUAL => {
             if let Ok(l) = left_str {
                 if let Ok(r) = right_str {
-                    return Literal::Bool(l == r);
+                    return Literal::Bool(l == r && left_type == right_type);
                 }
             }
             panic!("Something went wrong!");
@@ -154,7 +165,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
         TokenType::BANG_EQUAL => {
             if let Ok(l) = left_str {
                 if let Ok(r) = right_str {
-                    return Literal::Bool(l != r);
+                    return Literal::Bool(l != r || left_type != right_type);
                 }
             }
             panic!("Something went wrong!");
