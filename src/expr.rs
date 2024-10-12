@@ -348,7 +348,7 @@ impl AST {
         return self.tokens.get(self.curr_idx).unwrap().clone();
     }
 
-    fn check(&self, token_type: TokenType) -> bool {
+    pub fn check(&self, token_type: TokenType) -> bool {
         if Self::is_at_end(self) {
             return false;
         }
