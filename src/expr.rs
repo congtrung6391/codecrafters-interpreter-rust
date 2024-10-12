@@ -1,9 +1,9 @@
-use std::{
-    fmt::Display,
-    process::exit,
-};
+use std::{fmt::Display, process::exit};
 
-use crate::token::{Token, TokenType};
+use crate::{
+    environment::get_env,
+    token::{Token, TokenType},
+};
 
 fn evaluation_error(msg: &str) -> Literal {
     eprintln!("{}", msg);
@@ -43,6 +43,9 @@ pub enum Expression {
     Grouping {
         expr: Box<Expression>,
     },
+    Variable {
+        variable: Token,
+    },
 }
 
 impl Display for Literal {
@@ -71,7 +74,11 @@ impl Literal {
             Literal::String(s) => Ok(s.clone()),
             Literal::Nil => Err("Error type".to_string()),
             Literal::Number(n) => Ok(n.to_string()),
-            Literal::Bool(b) => Ok(if *b { "true".to_string() } else { "false".to_string() }),
+            Literal::Bool(b) => Ok(if *b {
+                "true".to_string()
+            } else {
+                "false".to_string()
+            }),
         }
     }
 
@@ -133,6 +140,7 @@ impl Display for Expression {
             )),
             Expression::Grouping { expr } => f.write_fmt(format_args!("(group {expr})")),
             Expression::Literal(lit) => f.write_fmt(format_args!("{}", lit)),
+            Expression::Variable { variable } => f.write_fmt(format_args!("{}", variable.lexeme)),
         }
     }
 }
@@ -275,6 +283,10 @@ pub fn eval_literal(lit: Literal) -> Literal {
     return lit;
 }
 
+pub fn eval_variable(variable: &Token) -> Literal {
+    return get_env(variable.lexeme.clone());
+}
+
 impl Expression {
     pub fn accept(&self) -> Literal {
         match self {
@@ -286,6 +298,7 @@ impl Expression {
             Expression::Grouping { expr } => eval_group(expr),
             Expression::Unary { operator, expr } => eval_unary(operator.clone(), &**expr),
             Expression::Literal(lit) => eval_literal(lit.clone()),
+            Expression::Variable { variable } => eval_variable(variable),
         }
     }
 }
@@ -316,7 +329,7 @@ impl AST {
         return false;
     }
 
-    fn peek(&self) -> Token {
+    pub fn peek(&self) -> Token {
         return self.tokens.get(self.curr_idx).unwrap().clone();
     }
 
@@ -337,13 +350,17 @@ impl AST {
         return false;
     }
 
-    pub fn consume(&mut self, expected_token: TokenType, error_msg: String) {
+    pub fn consume(&mut self, expected_token: TokenType, error_msg: String) -> Token {
         if !Self::match_type(self, &[expected_token]) {
             eprintln!("{}", error_msg);
             exit(65);
         }
 
+        let token = Self::peek(self);
+
         Self::advance(self);
+
+        return token;
     }
 
     fn equality(&mut self) -> Expression {
@@ -487,6 +504,13 @@ impl AST {
                 );
                 exit(65);
             }
+        }
+        if Self::match_type(self, &[TokenType::IDENTIFIER]) {
+            let variable = Expression::Variable {
+                variable: Self::peek(self),
+            };
+            Self::advance(self);
+            return variable;
         }
         eprintln!(
             "[line 1] Error at '{}': Expect expression.",

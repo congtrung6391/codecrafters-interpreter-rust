@@ -1,1 +1,3 @@
-print "non-ascii: ॐ";
+var a = "Hello";
+
+print a;

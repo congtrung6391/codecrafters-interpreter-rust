@@ -1,5 +1,4 @@
-use std::env;
-use std::fs;
+use std::{env, fs};
 use std::io::{self, Write};
 use std::process::exit;
 
@@ -13,6 +12,7 @@ pub mod expr;
 pub mod statement;
 pub mod token;
 pub mod tokenizer;
+pub mod environment;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -110,6 +110,7 @@ fn main() {
                 let mut ast = AST::new(tokens);
                 let mut sst = SST::new(ast);
                 sst.parse_tree();
+                sst.run();
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
