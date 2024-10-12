@@ -1,7 +1,31 @@
-var a = 1;
+{
+    var foo = "before";
+    print foo;
+}
+{
+    var foo = "after";
+    print foo;
+}
+{
+    var hello = "baz";
+    print hello;
+}
+var a = "global a";
+var b = "global b";
+var c = "global c";
+{
+  var a = "outer a";
+  var b = "outer b";
+  {
+    var a = "inner a";
+    print a;
+    print b;
+    print c;
+  }
+  print a;
+  print b;
+  print c;
+}
 print a;
-var b = 2;
 print b;
-var b = a = 3;
-print a;
-print b;
+print c;

@@ -1,5 +1,5 @@
 use crate::{
-    environment::define_env,
+    environment::{add_block_scoping, define_env, remove_block_scoping},
     expr::{Expression, Literal, AST},
     token::{Token, TokenType},
 };
@@ -25,9 +25,11 @@ fn eval_expr_stat(expr: &Expression) {
 }
 
 fn eval_block_stat(stats: &Vec<Statement>) {
+    add_block_scoping();
     for stat in stats {
         stat.accept();
     }
+    remove_block_scoping();
 }
 
 impl Statement {

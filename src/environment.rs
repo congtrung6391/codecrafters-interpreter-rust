@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use std::{collections::HashMap, process::exit, sync::Mutex};
+use std::{collections::HashMap, process::exit, sync::{Arc, Mutex}};
 
 use crate::expr::Literal;
 
@@ -37,20 +37,16 @@ impl State {
     }
 
     pub fn get_parent(&self) -> State {
-        match self.parent.clone() {
+        match &self.parent {
             None => {
                 exit(70);
             }
             Some(par) => {
-                let p = *par;
+                let p = *par.clone();
                 return p;
             }
         }
     }
-}
-
-lazy_static! {
-    static ref SPACE: Mutex<HashMap<String, Literal>> = Mutex::new(HashMap::new());
 }
 
 lazy_static! {
@@ -67,15 +63,14 @@ pub fn get_env(name: String) -> Literal {
     return space.get(name);
 }
 
-pub fn add_block() {
+pub fn add_block_scoping() {
     let mut state = STATE.lock().unwrap().clone();
-    let deref_state = state.to_owned();
-    let new_block = State::new(Some(Box::new(deref_state)));
-    state = new_block.clone();
+    let new_block = State::new(Some(Box::new(state)));
+    *STATE.lock().unwrap() = new_block.clone();
 }
 
-pub fn remove_block() {
+pub fn remove_block_scoping() {
     let mut state = STATE.lock().unwrap().clone();
     let prev_state = state.get_parent();
-    state = prev_state;
+    *STATE.lock().unwrap() = prev_state;
 }
