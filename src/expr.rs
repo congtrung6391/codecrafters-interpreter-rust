@@ -71,7 +71,7 @@ impl Literal {
             Literal::String(s) => Ok(s.clone()),
             Literal::Nil => Err("Error type".to_string()),
             Literal::Number(n) => Ok(n.to_string()),
-            Literal::Bool(_b) => Err("Error type".to_string()),
+            Literal::Bool(b) => Ok(if *b { "true".to_string() } else { "false".to_string() }),
         }
     }
 
