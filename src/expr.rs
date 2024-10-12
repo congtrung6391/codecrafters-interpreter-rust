@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    environment::{define_env, get_env},
+    environment::{assign_env, define_env, get_env},
     token::{Token, TokenType},
 };
 
@@ -297,7 +297,7 @@ pub fn eval_variable(variable: &Token) -> Literal {
 
 pub fn eval_assignment(name: String, value: &Expression) -> Literal {
     let val = value.accept();
-    define_env(name, val.clone());
+    assign_env(name, val.clone());
     return val;
 }
 
@@ -534,7 +534,6 @@ impl AST {
         let expr = self.equality();
 
         if Self::match_type(self, &[TokenType::EQUAL]) {
-            let token = Self::peek(self);
             Self::advance(self);
 
             let value = Self::expression(self);

@@ -36,6 +36,19 @@ impl State {
         }
     }
 
+    pub fn assign(&mut self, name: String, value: Literal) {
+        if let Some(val) = self.space.get(&name) {
+            self.space.insert(name.clone(), value);
+            return;
+        }
+        if let Some(ref mut par) = self.parent {
+            par.assign(name.clone(), value);
+            return;
+        }
+        eprintln!("Undefined variable {}.", name.clone());
+        exit(70);
+    }
+
     pub fn get_parent(&self) -> State {
         match &self.parent {
             None => {
@@ -56,6 +69,11 @@ lazy_static! {
 pub fn define_env(name: String, value: Literal) {
     let mut space = STATE.lock().unwrap();
     space.define(name, value);
+}
+
+pub fn assign_env(name: String, value: Literal) {
+    let mut space = STATE.lock().unwrap();
+    space.assign(name, value);
 }
 
 pub fn get_env(name: String) -> Literal {
