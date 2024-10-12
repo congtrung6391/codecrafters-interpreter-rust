@@ -1,7 +1,10 @@
-use std::{fmt::Display, process::exit};
+use std::{
+    fmt::Display,
+    process::{exit, ExitCode},
+};
 
 use crate::{
-    environment::get_env,
+    environment::{define_env, get_env},
     token::{Token, TokenType},
 };
 
@@ -45,6 +48,10 @@ pub enum Expression {
     },
     Variable {
         variable: Token,
+    },
+    Assignment {
+        name: Token,
+        value: Box<Expression>,
     },
 }
 
@@ -141,6 +148,7 @@ impl Display for Expression {
             Expression::Grouping { expr } => f.write_fmt(format_args!("(group {expr})")),
             Expression::Literal(lit) => f.write_fmt(format_args!("{}", lit)),
             Expression::Variable { variable } => f.write_fmt(format_args!("{}", variable.lexeme)),
+            Expression::Assignment { name, value } => f.write_fmt(format_args!("{}", name.lexeme)),
         }
     }
 }
@@ -287,6 +295,12 @@ pub fn eval_variable(variable: &Token) -> Literal {
     return get_env(variable.lexeme.clone());
 }
 
+pub fn eval_assignment(name: String, value: &Expression) -> Literal {
+    let val = value.accept();
+    define_env(name, val.clone());
+    return val;
+}
+
 impl Expression {
     pub fn accept(&self) -> Literal {
         match self {
@@ -299,6 +313,7 @@ impl Expression {
             Expression::Unary { operator, expr } => eval_unary(operator.clone(), &**expr),
             Expression::Literal(lit) => eval_literal(lit.clone()),
             Expression::Variable { variable } => eval_variable(variable),
+            Expression::Assignment { name, value } => eval_assignment(name.lexeme.clone(), &**value),
         }
     }
 }
@@ -515,8 +530,35 @@ impl AST {
         exit(65);
     }
 
+    pub fn assignment(&mut self) -> Expression {
+        let expr = self.equality();
+
+        if Self::match_type(self, &[TokenType::EQUAL]) {
+            let token = Self::peek(self);
+            Self::advance(self);
+
+            let value = Self::expression(self);
+
+            match expr {
+                Expression::Variable { variable } => {
+                    return Expression::Assignment {
+                        name: variable,
+                        value: Box::new(value),
+                    };
+                }
+
+                _ => {
+                    eprintln!("Invalid assignment target.");
+                    exit(65);
+                }
+            }
+        }
+
+        return expr;
+    }
+
     pub fn expression(&mut self) -> Expression {
-        return Self::equality(self);
+        return Self::assignment(self);
     }
 
     pub fn parse_tree(&mut self, debug: bool) {
