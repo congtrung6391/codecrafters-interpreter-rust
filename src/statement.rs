@@ -29,6 +29,7 @@ impl SST {
         }
 
         let expr = self.ast.expression();
+        expr.accept();
         self.ast.consume(TokenType::SEMICOLON, "expected semicolon".to_string());
         return Statement::ExprStatement(expr);
     }
