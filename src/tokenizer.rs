@@ -1,5 +1,3 @@
-use std::process::ExitCode;
-
 use crate::token::{
     TokenType,
     Token,
@@ -69,7 +67,7 @@ impl Tokenizer {
             lexeme,
             literal,
         );
-        &self.tokens.push(token);
+        let _ = &self.tokens.push(token);
     }
 
     fn lexer_error(line: i32, message: String) {

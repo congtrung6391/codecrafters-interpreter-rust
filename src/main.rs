@@ -4,11 +4,13 @@ use std::io::{self, Write};
 use std::process::exit;
 
 use expr::Literal;
+use statement::SST;
 
 use crate::expr::AST;
 use crate::tokenizer::Tokenizer;
 
 pub mod expr;
+pub mod statement;
 pub mod token;
 pub mod tokenizer;
 
@@ -48,7 +50,7 @@ fn main() {
                 let result = tokenizer.scan(file_contents.clone());
                 let tokens = tokenizer.get_tokens();
 
-                if (result != 0) {
+                if result != 0 {
                     exit(result);
                 }
 
@@ -64,7 +66,7 @@ fn main() {
                 let result = tokenizer.scan(file_contents.clone());
                 let tokens = tokenizer.get_tokens();
 
-                if (result != 0) {
+                if result != 0 {
                     exit(result);
                 }
 
@@ -80,7 +82,7 @@ fn main() {
                         Literal::Nil => println!("nil"),
                         Literal::Bool(s) => println!("{}", s),
                         Literal::Number(n) => {
-                            let formatted = if n.fract() == 0.0 {
+                            let _ = if n.fract() == 0.0 {
                                 // If there is no fractional part, show one decimal place
                                 println!("{:.0}", n)
                             } else {
@@ -90,6 +92,24 @@ fn main() {
                         }
                     }
                 }
+            } else {
+                println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
+            }
+        }
+        "run" => {
+            if !file_contents.is_empty() {
+                let mut tokenizer = Tokenizer::new();
+                let result = tokenizer.scan(file_contents.clone());
+
+                if result != 0 {
+                    exit(result);
+                }
+
+                let tokens = tokenizer.get_tokens();
+
+                let mut ast = AST::new(tokens);
+                let mut sst = SST::new(ast);
+                sst.parse_tree();
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }

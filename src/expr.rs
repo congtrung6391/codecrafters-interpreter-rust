@@ -1,5 +1,4 @@
 use std::{
-    any::{Any, TypeId},
     fmt::Display,
     process::exit,
 };
@@ -60,10 +59,10 @@ impl Display for Literal {
 impl Literal {
     fn get_type(&self) -> String {
         match self {
-            Literal::String(s) => "string".to_string(),
+            Literal::String(_s) => "string".to_string(),
             Literal::Nil => "nil".to_string(),
-            Literal::Number(n) => "number".to_string(),
-            Literal::Bool(b) => "bool".to_string(),
+            Literal::Number(_n) => "number".to_string(),
+            Literal::Bool(_b) => "bool".to_string(),
         }
     }
 
@@ -72,7 +71,7 @@ impl Literal {
             Literal::String(s) => Ok(s.clone()),
             Literal::Nil => Err("Error type".to_string()),
             Literal::Number(n) => Ok(n.to_string()),
-            Literal::Bool(b) => Err("Error type".to_string()),
+            Literal::Bool(_b) => Err("Error type".to_string()),
         }
     }
 
@@ -82,21 +81,38 @@ impl Literal {
                 let num = s.parse();
                 match num {
                     Ok(n) => Ok(n),
-                    Err(e) => Err("Error type".to_string()),
+                    Err(_e) => Err("Error type".to_string()),
                 }
             }
             Literal::Nil => Err("Error type".to_string()),
-            Literal::Bool(b) => Err("Error type".to_string()),
+            Literal::Bool(_b) => Err("Error type".to_string()),
             Literal::Number(n) => Ok(*n),
         }
     }
 
     fn to_bool(&self) -> Result<bool, String> {
         match self {
-            Literal::String(s) => Ok(true),
+            Literal::String(_s) => Ok(true),
             Literal::Nil => Ok(false),
-            Literal::Number(n) => Ok(true),
+            Literal::Number(_n) => Ok(true),
             Literal::Bool(b) => Ok(*b),
+        }
+    }
+
+    pub fn print(&self) {
+        match self {
+            Literal::String(s) => println!("{}", s),
+            Literal::Nil => println!("nil"),
+            Literal::Bool(s) => println!("{}", s),
+            Literal::Number(n) => {
+                let _formatted = if n.fract() == 0.0 {
+                    // If there is no fractional part, show one decimal place
+                    println!("{:.0}", n)
+                } else {
+                    // Otherwise, show the full precision
+                    println!("{}", n)
+                };
+            }
         }
     }
 }
@@ -202,7 +218,7 @@ pub fn eval_binary(operator: &Token, left_expr: &Expression, right_expr: &Expres
             return evaluation_error("Operands must be numbers.");
         }
         TokenType::PLUS => {
-            if (left_type != right_type) {
+            if left_type != right_type {
                 return evaluation_error("Operands must be two numbers or two strings.");
             }
 
@@ -289,11 +305,11 @@ impl AST {
         };
     }
 
-    fn advance(&mut self) {
+    pub fn advance(&mut self) {
         self.curr_idx += 1;
     }
 
-    fn is_at_end(&self) -> bool {
+    pub fn is_at_end(&self) -> bool {
         if self.curr_idx >= self.tokens.len() {
             return true;
         }
@@ -311,7 +327,7 @@ impl AST {
         return Self::peek(self).token_type == token_type;
     }
 
-    fn match_type(&self, targets: &[TokenType]) -> bool {
+    pub fn match_type(&self, targets: &[TokenType]) -> bool {
         for target in targets {
             if Self::check(self, target.clone()) {
                 return true;
@@ -319,6 +335,15 @@ impl AST {
         }
 
         return false;
+    }
+
+    pub fn consume(&mut self, expected_token: TokenType, error_msg: String) {
+        if !Self::match_type(self, &[expected_token]) {
+            eprintln!("{}", error_msg);
+            exit(65);
+        }
+
+        Self::advance(self);
     }
 
     fn equality(&mut self) -> Expression {
@@ -470,7 +495,7 @@ impl AST {
         exit(65);
     }
 
-    fn expression(&mut self) -> Expression {
+    pub fn expression(&mut self) -> Expression {
         return Self::equality(self);
     }
 
