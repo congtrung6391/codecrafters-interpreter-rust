@@ -492,18 +492,14 @@ impl AST {
         if Self::match_type(self, &[TokenType::LEFT_PAREN]) {
             Self::advance(self);
             let expr = Self::expression(self);
-            if Self::match_type(self, &[TokenType::RIGHT_PAREN]) {
-                Self::advance(self);
-                return Expression::Grouping {
-                    expr: Box::new(expr),
-                };
-            } else {
-                eprintln!(
-                    "[line 1] Error at '{}': Expect expression.",
-                    self.peek().lexeme
-                );
-                exit(65);
-            }
+            Self::consume(
+                self,
+                TokenType::RIGHT_PAREN,
+                "[line 1] Error at '{}': Expect expression.".to_string(),
+            );
+            return Expression::Grouping {
+                expr: Box::new(expr),
+            };
         }
         if Self::match_type(self, &[TokenType::IDENTIFIER]) {
             let variable = Expression::Variable {
