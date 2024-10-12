@@ -83,13 +83,8 @@ impl SST {
     pub fn parse_tree(&mut self) {
         while !self.ast.is_at_end() {
             let stat = Self::statement(self);
-            self.stats.push(stat);
-        }
-    }
-
-    pub fn run(&self) {
-        for stat in &self.stats {
             stat.accept();
+            self.stats.push(stat);
         }
     }
 }

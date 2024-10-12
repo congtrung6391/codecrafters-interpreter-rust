@@ -110,7 +110,6 @@ fn main() {
                 let mut ast = AST::new(tokens);
                 let mut sst = SST::new(ast);
                 sst.parse_tree();
-                sst.run();
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
