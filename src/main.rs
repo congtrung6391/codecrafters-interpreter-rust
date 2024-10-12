@@ -107,7 +107,7 @@ fn main() {
 
                 let tokens = tokenizer.get_tokens();
 
-                let mut ast = AST::new(tokens);
+                let ast = AST::new(tokens);
                 let mut sst = SST::new(ast);
                 sst.parse_tree();
             } else {

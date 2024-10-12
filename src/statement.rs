@@ -88,7 +88,7 @@ impl SST {
         self.ast.advance();
         let mut stats = Vec::new();
 
-        while !self.ast.check(TokenType::RIGHT_BRACE) {
+        while !self.ast.is_at_end() && !self.ast.check(TokenType::RIGHT_BRACE) {
             let stat = Self::statement(self);
             stats.push(stat);
         }
