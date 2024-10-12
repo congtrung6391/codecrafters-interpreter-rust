@@ -69,8 +69,9 @@ pub fn get_env(name: String) -> Literal {
 
 pub fn add_block() {
     let mut state = STATE.lock().unwrap().clone();
-    let new_block = State::new(Some(Box::new(state)));
-    state = new_block;
+    let deref_state = state.to_owned();
+    let new_block = State::new(Some(Box::new(deref_state)));
+    state = new_block.clone();
 }
 
 pub fn remove_block() {

@@ -92,10 +92,7 @@ impl SST {
         }
 
         self.ast
-            .consume(TokenType::SEMICOLON, "Expect '}' after block.".to_string());
-
-        self.ast
-            .consume(TokenType::SEMICOLON, "expected semicolon".to_string());
+            .consume(TokenType::RIGHT_BRACE, "Expect '}' after block.".to_string());
 
         return Statement::BlockStatement(stats);
     }
